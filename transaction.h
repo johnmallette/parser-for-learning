@@ -7,10 +7,9 @@ class Transaction{
     public:
         Transaction(char *);
         ~Transaction();
-        bool fail(){return flag_fail;};
+        bool fail(){return raw->fail();};
     private:
         Bytes *raw;
-        bool flag_fail;
         uint32_t version;
         uint32_t locktime;
         Compactsize num_of_inputs, num_of_outputs;

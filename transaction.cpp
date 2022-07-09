@@ -1,13 +1,10 @@
 #include "transaction.h"
 
 Transaction::Transaction(char *arg){
-    flag_fail = false;
     raw = new Bytes(arg); 
     
-    if(raw->fail()){
-        flag_fail = true;
-        return;
-    }
+    if(raw->fail())return;
+
 
     *raw >> version >> num_of_inputs; 
     

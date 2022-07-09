@@ -4,7 +4,7 @@
 #include <iostream>
 
 struct Input{
-    Bytes id;
+    Bytes id{(int64_t)-32};
     uint32_t index;
     Bytes scriptsig;
     uint32_t sequence;

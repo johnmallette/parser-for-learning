@@ -2,6 +2,7 @@
 
 Bytes::Bytes(){
     flag_fail = false;
+    num_of_bytes = 0;
     current = bytes.begin();
 }
 
@@ -21,6 +22,12 @@ Bytes::Bytes(char *arg){
         bytes.push_back(uc);
     }
 
+    current = bytes.begin();
+}
+
+Bytes::Bytes(int64_t num){
+    flag_fail = false;
+    num_of_bytes = num;
     current = bytes.begin();
 }
 
@@ -58,34 +65,6 @@ unsigned char Bytes::char_to_hex(char c){
     return uc;
 }
 
-void Bytes::set(std::vector<unsigned char> arg){
-    bytes = arg;
-    current = bytes.begin();
-}
-
-std::vector<unsigned char> Bytes::get(int64_t num){
-    bool little = false;
-    if(num < 0){
-        num = -num;
-        little = true;
-    }
-
-    std::vector<unsigned char> bye_bytes;
-    std::vector<unsigned char>::iterator start = current;
-
-    advance_current(num);
-
-    while(start != current){
-        bye_bytes.push_back(*start);
-        start++;
-    }
-
-    if(little) std::reverse(bye_bytes.begin(), bye_bytes.end());
-
-    return bye_bytes;
-}
-
-
 std::ostream& operator<<(std::ostream& lhs, Bytes &rhs){
     for(int i = 0; i < rhs.bytes.size(); i++)
         lhs << std::hex << std::setw(2) << std::setfill('0') << (int)rhs.bytes[i];
@@ -104,6 +83,28 @@ Bytes& operator>>(Bytes& lhs, T& rhs){
         rhs <<= 8;
         rhs ^= *(it - 1);
     }
+
+    return lhs;
+}
+
+Bytes& operator>>(Bytes& lhs, Bytes& rhs){
+    bool little = false;
+
+    if(rhs.num_of_bytes < 0){
+        rhs.num_of_bytes = -rhs.num_of_bytes;
+        little = true;
+    }
+
+    std::vector<unsigned char>::iterator start = lhs.current;
+
+    lhs.advance_current(rhs.num_of_bytes);
+
+    while(start != lhs.current){
+        rhs.bytes.push_back(*start);
+        start++;
+    }
+
+    if(little) std::reverse(rhs.bytes.begin(), rhs.bytes.end());
 
     return lhs;
 }
@@ -155,10 +156,9 @@ Bytes& operator>>(Bytes& lhs, Input& rhs){
     //a thing
     Compactsize scriptsig_size;
     
-    rhs.id.set(lhs.get(-32));
-    lhs >> rhs.index >> scriptsig_size;
-    rhs.scriptsig.set(lhs.get((int64_t)scriptsig_size.value));
-    lhs >> rhs.sequence;
+    lhs >> rhs.id >> rhs.index >> scriptsig_size;
+    rhs.scriptsig.num_of_bytes = (int64_t)scriptsig_size.value;
+    lhs >> rhs.scriptsig >> rhs.sequence;
 
     return lhs;
 }
@@ -181,7 +181,8 @@ Bytes& operator>>(Bytes& lhs, Output& rhs){
     Compactsize scriptpubkey_size;
 
     lhs >> rhs.amount >> scriptpubkey_size;
-    rhs.scriptpubkey.set(lhs.get((int64_t)scriptpubkey_size.value));
+    rhs.scriptpubkey.num_of_bytes = (int64_t)scriptpubkey_size.value;
+    lhs >> rhs.scriptpubkey;
 
     return lhs;
 }

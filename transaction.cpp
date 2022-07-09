@@ -3,7 +3,7 @@
 Transaction::Transaction(char *arg){
     raw = new Bytes(arg); 
     
-    if(raw->fail())return;
+    if(fail())return;
 
     *raw >> version >> inputs >> outputs >> locktime; 
 }

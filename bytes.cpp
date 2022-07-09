@@ -24,6 +24,17 @@ Bytes::Bytes(char *arg){
     current = bytes.begin();
 }
 
+void Bytes::advance_current(int num){
+    if(num == 0) return;
+    if(current == bytes.end()) flag_fail = true;
+    if(flag_fail) return;
+
+    current++;
+    advance_current(num-1);
+
+    return;
+}
+
 bool Bytes::valid_input(char *arg){
     int size = 0;
     
@@ -60,11 +71,13 @@ std::vector<unsigned char> Bytes::get(int64_t num){
     }
 
     std::vector<unsigned char> bye_bytes;
-    std::vector<unsigned char>::iterator stop = current + num;
-    
-    while(current != stop){
-        bye_bytes.push_back(*current);
-        current++;
+    std::vector<unsigned char>::iterator start = current;
+
+    advance_current(num);
+
+    while(start != current){
+        bye_bytes.push_back(*start);
+        start++;
     }
 
     if(little) std::reverse(bye_bytes.begin(), bye_bytes.end());
@@ -79,46 +92,19 @@ std::ostream& operator<<(std::ostream& lhs, Bytes &rhs){
     return lhs;
 }
 
-Bytes& operator>>(Bytes& lhs, unsigned char& rhs){
-    rhs = 0x00;
-    rhs = *lhs.current;
-    lhs.current++;
-    return lhs;
-}
 
-Bytes& operator>>(Bytes& lhs, uint16_t& rhs){
-    rhs = 0x0000;
+template<typename T>
+Bytes& operator>>(Bytes& lhs, T& rhs){
+    rhs = 0;
 
-    for(int i = 2; i; i--){
+    std::vector<unsigned char>::iterator stop = lhs.current;
+    lhs.advance_current(sizeof(T));
+
+    for(std::vector<unsigned char>::iterator it = lhs.current; it != stop; it--){
         rhs <<= 8;
-        rhs ^= *(lhs.current + (i-1));
+        rhs ^= *(it - 1);
     }
 
-    lhs.current += 2;
-    return lhs;
-}
-
-Bytes& operator>>(Bytes& lhs, uint32_t& rhs){
-    rhs = 0x00000000;
-
-    for(int i = 4; i; i--){
-        rhs <<= 8;
-        rhs ^= *(lhs.current + (i-1));
-    }
-
-    lhs.current += 4;
-    return lhs;
-}
-
-Bytes& operator>>(Bytes& lhs, uint64_t& rhs){
-    rhs = 0x0000000000000000;
-
-    for(int i = 8; i; i--){
-        rhs <<= 8;
-        rhs ^= *(lhs.current + (i-1));
-    }
-
-    lhs.current += 8;
     return lhs;
 }
 
@@ -168,10 +154,12 @@ Bytes& operator>>(Bytes& lhs, Input& rhs){
     //figured that would be cool since one MB blocks are still
     //a thing
     Compactsize scriptsig_size;
+    
     rhs.id.set(lhs.get(-32));
     lhs >> rhs.index >> scriptsig_size;
     rhs.scriptsig.set(lhs.get((int64_t)scriptsig_size.value));
     lhs >> rhs.sequence;
+
     return lhs;
 }
 
@@ -191,7 +179,9 @@ Bytes& operator>>(Bytes& lhs, std::vector<Output>& rhs){
 
 Bytes& operator>>(Bytes& lhs, Output& rhs){
     Compactsize scriptpubkey_size;
+
     lhs >> rhs.amount >> scriptpubkey_size;
     rhs.scriptpubkey.set(lhs.get((int64_t)scriptpubkey_size.value));
+
     return lhs;
 }

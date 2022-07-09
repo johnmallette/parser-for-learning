@@ -12,7 +12,6 @@ class Transaction{
         Bytes *raw;
         uint32_t version;
         uint32_t locktime;
-        //Compactsize num_of_inputs, num_of_outputs;
         std::vector<Input> inputs;
         std::vector<Output> outputs;
 

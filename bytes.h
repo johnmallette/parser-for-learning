@@ -34,7 +34,9 @@ class Bytes{
         friend Bytes& operator>>(Bytes&, uint32_t&);
         friend Bytes& operator>>(Bytes&, uint64_t&);
         friend Bytes& operator>>(Bytes&, Compactsize&);
+        friend Bytes& operator>>(Bytes&, std::vector<Input>&);
         friend Bytes& operator>>(Bytes&, Input&);
+        friend Bytes& operator>>(Bytes&, std::vector<Output>&);
         friend Bytes& operator>>(Bytes&, Output&);
 };
 

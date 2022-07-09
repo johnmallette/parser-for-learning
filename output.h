@@ -8,8 +8,8 @@ struct Output{
     Bytes scriptpubkey;
 
     friend std::ostream& operator<<(std::ostream& lhs, Output& rhs){
-        lhs << "\tamount:" << std::dec << rhs.amount << std::endl
-            << "\tscriptpubkey:" << rhs.scriptpubkey;
+        lhs << "  amount:" << std::dec << rhs.amount << std::endl
+            << "  scriptpubkey:" << rhs.scriptpubkey;
         return lhs;
     }
 };

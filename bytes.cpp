@@ -149,6 +149,20 @@ Bytes& operator>>(Bytes& lhs, Compactsize& rhs){
     return lhs;
 }
 
+Bytes& operator>>(Bytes& lhs, std::vector<Input>& rhs){
+    Compactsize num_of_inputs;
+
+    lhs >> num_of_inputs;
+
+    for(uint64_t i = 0; i != num_of_inputs.value; i++){
+        Input next;
+        lhs >> next;
+        rhs.push_back(next);
+    }
+
+    return lhs;
+}
+
 Bytes& operator>>(Bytes& lhs, Input& rhs){
     //scriptsize larger than or equal to 2**63 breaks this
     //figured that would be cool since one MB blocks are still
@@ -158,6 +172,20 @@ Bytes& operator>>(Bytes& lhs, Input& rhs){
     lhs >> rhs.index >> scriptsig_size;
     rhs.scriptsig.set(lhs.get((int64_t)scriptsig_size.value));
     lhs >> rhs.sequence;
+    return lhs;
+}
+
+Bytes& operator>>(Bytes& lhs, std::vector<Output>& rhs){
+    Compactsize num_of_outputs;
+
+    lhs >> num_of_outputs;
+
+    for(uint64_t i = 0; i != num_of_outputs.value; i++){
+        Output next;
+        lhs >> next;
+        rhs.push_back(next);
+    }
+
     return lhs;
 }
 

@@ -11,7 +11,7 @@ struct Input{
 
     friend std::ostream& operator<<(std::ostream& lhs, Input& rhs){
         lhs << "  txid:" << rhs.id << std::endl 
-            << "  index:" << std::dec <<  rhs.index << std::endl
+            << "  vout:" << std::dec <<  rhs.index << std::endl
             << "  scriptsig:" << rhs.scriptsig <<  std::endl
             << "  sequence:" << rhs.sequence;
         return lhs;
